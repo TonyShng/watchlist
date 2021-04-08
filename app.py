@@ -23,12 +23,22 @@ class Movie(db.Model):  # 表名将会是 user (自动生成，小写处理)
     year = db.Column(db.String(4))  # 电影年份
 
 
+# 模版上下文处理函数
+@app.context_processor
+def inject_user():
+    user = User.query.first()
+    return dict(user=user)  # 需要返回字典， 等同于 return {'user': user}
+
+
+@app.errorhandler(404)   # 传入要处理的错误代码
+def page_not_found(e):   # 接收异常对象作为参数
+    return render_template('404.html'), 404  # 返回模版和状态码
+
+
 @app.route('/')
 def index():
-    user = User.query.first()  # 读取用户记录
     movies = Movie.query.all()  # 读取所有电影记录
-    print(user, movies)
-    return render_template('index.html', user=user, movies=movies)
+    return render_template('index.html', movies=movies)
 # return '<h1>Hello RainTwo!</h1><img src="http://helloflask.com/totoro.gif">'
 
 @app.route('/home')
@@ -47,3 +57,4 @@ def test_url_for():
     # print(url_for('user_page', name='greyli'))
     # print(url_for('test_url_for'))
     return 'Test page'
+
